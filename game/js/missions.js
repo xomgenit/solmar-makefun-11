@@ -531,9 +531,12 @@ export function createMissions(game) {
       game.sfx('cash');
     }
     game.showBanner('MISSION PASSED', def.title);
-    game.saveNow();
     if (def.next) start(def.next);
     else if (def.id !== 'free-roam') start('free-roam');
+    // Save AFTER the chain starts: saveNow before start() recorded
+    // currentId null (state was cleared above), so CONTINUE after any
+    // mission completion dropped the player into free-roam with no mission.
+    game.saveNow();
   }
 
   function failCurrent(reason) {
