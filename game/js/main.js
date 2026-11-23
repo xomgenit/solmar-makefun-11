@@ -478,6 +478,9 @@ function update(dt) {
   // Camera follows the player, clamped to the world.
   game.cam.x = clamp(game.player.x - VW / 2, 0, WORLD - VW);
   game.cam.y = clamp(game.player.y - VH / 2, 0, WORLD - VH);
+  // Keep the shop buttons live while the panel is open — cash and car HP can
+  // change behind it (a disabled Repair button after fresh damage is a trap).
+  if (game.shopOpen) refreshShop();
   updateHUD(game);
 }
 
