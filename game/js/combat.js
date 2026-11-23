@@ -160,7 +160,7 @@ export function updateEnemies(game, dt) {
       game.effects.tracer(e.x, e.y, px, py);
       game.effects.muzzle(e.x, e.y, e.angle);
       game.sfx('shoot');
-      if (Math.random() < 0.5) damagePlayer(game, e.kind === 'king' ? 8 : 6, e.kind);
+      if (Math.random() < 0.5) damagePlayer(game, e.damage || (e.kind === 'king' ? 8 : 6), e.kind);
     }
   }
   game.enemies = game.enemies.filter((e) => !e.dead);
@@ -169,7 +169,8 @@ export function updateEnemies(game, dt) {
 /** Slow health regen after 8 calm seconds. */
 export function updatePlayerHealth(game, dt) {
   const player = game.player;
-  if (player.hp > 0 && player.hp < 100 && game.time - player.lastHurtAt > 8) {
-    player.hp = Math.min(100, player.hp + 4 * dt);
+  const maxHp = player.maxHp || 100;
+  if (player.hp > 0 && player.hp < maxHp && game.time - player.lastHurtAt > 8) {
+    player.hp = Math.min(maxHp, player.hp + 4 * dt);
   }
 }

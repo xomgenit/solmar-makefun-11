@@ -213,6 +213,38 @@ export function drawWorld(game, ctx, cam, vw, vh) {
     ctx.closePath();
     ctx.fill();
   }
+  // Cash stashes: a faint green pulsing glint until collected.
+  if (game.missions) {
+    for (const s of game.missions.stashList()) {
+      if (s.taken) continue;
+      const a = 0.35 + Math.sin(game.time * 3 + s.x) * 0.2;
+      ctx.fillStyle = `rgba(124,252,0,${a.toFixed(2)})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = `rgba(124,252,0,${Math.min(1, a + 0.3).toFixed(2)})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 14 + Math.sin(game.time * 3) * 3, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+  // Street race: checkpoint gates (next gate bright, the rest dim).
+  if (game.race) {
+    game.race.gates.forEach((g, i) => {
+      const isNext = i === game.race.playerGates;
+      const done = i < game.race.playerGates;
+      ctx.strokeStyle = done ? '#7CFC00' : isNext ? '#ffd34d' : 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = isNext ? 4 : 2;
+      ctx.beginPath();
+      ctx.arc(g.x, g.y, 130, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = done ? '#7CFC00' : isNext ? '#ffd34d' : 'rgba(255,255,255,0.7)';
+      ctx.font = 'bold 20px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(i === game.race.gates.length - 1 ? 'FIN' : `${i + 1}`, g.x, g.y + 7);
+    });
+  }
   // Skids UNDER the actors.
   game.effects.drawSkids(ctx);
   for (const car of game.cars) drawCar(ctx, car);
@@ -222,8 +254,14 @@ export function drawWorld(game, ctx, cam, vw, vh) {
     drawHealthBar(ctx, cop.x, cop.y, cop.hp, cop.maxHp);
   }
   for (const e of game.enemies) {
-    drawPerson(ctx, e.x, e.y, e.angle, e.kind === 'king' ? '#5b2c6f' : '#1c3f6e', false);
+    drawPerson(ctx, e.x, e.y, e.angle, e.color || (e.kind === 'king' ? '#5b2c6f' : '#1c3f6e'), false);
     drawHealthBar(ctx, e.x, e.y, e.hp, e.maxHp);
+    if (e.boss) {
+      ctx.fillStyle = '#e74c3c';
+      ctx.font = 'bold 11px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('BOSS', e.x, e.y - 28);
+    }
   }
   // The player: bright yellow shirt, unmistakable at screen centre.
   const p = game.player;

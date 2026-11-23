@@ -27,10 +27,12 @@ function setText(id, text) {
 
 export function updateHUD(game) {
   const p = game.player;
+  const maxHp = p.maxHp || 100;
   const healthFill = document.getElementById('health-fill');
-  if (healthFill) healthFill.style.width = `${Math.max(0, p.hp)}%`;
+  if (healthFill) healthFill.style.width = `${Math.max(0, (p.hp / maxHp) * 100)}%`;
   setText('health-text', `${Math.ceil(p.hp)}`);
   setText('cash', `$${Math.floor(p.cash)}`);
+  if (game.missions) setText('respect', `Respect: ${game.missions.respectRank} (${game.missions.respect}/8)`);
   const stars = document.getElementById('stars');
   if (stars) {
     const filled = '★'.repeat(game.wanted);
